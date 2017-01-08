@@ -28,8 +28,23 @@ class PostgresUserRepository(db: Database) extends UserRepository {
   }
 
   def findAllUsers(): List[User] = {
-    val user = User("christian.paling@googlemail.com", "12345", true)
+    var list: List[User] = List()
 
-    return List(user)
+    db.withConnection { conn =>
+      val stmt = conn.prepareStatement("SELECT * FROM users")
+      val rs = stmt.executeQuery
+
+      while(rs.next()) {
+        val email = rs.getString("email")
+        val password = rs.getString("password")
+        val isAdmin = rs.getBoolean("is_admin")
+
+        val user = User(email, password, isAdmin)
+
+        list = user :: list
+      }
+    }
+
+    return list
   }
 }
