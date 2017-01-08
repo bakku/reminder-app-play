@@ -6,6 +6,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.7"
 
+javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
+
 libraryDependencies ++= Seq(
   jdbc,
   evolutions,
