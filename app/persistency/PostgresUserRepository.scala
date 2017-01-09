@@ -24,6 +24,23 @@ class PostgresUserRepository @Inject()(db: Database) extends UserRepository {
     return Option(user)
   }
 
+  def findUserByEmail(email: String): Option[User] = {
+    var user: User = null
+
+    db.withConnection { conn =>
+      val stmt = conn.prepareStatement("SELECT * FROM users WHERE email = ?")
+      stmt.setString(1, email)
+
+      val rs = stmt.executeQuery
+
+      if (rs.next()) {
+        user = UserHelper.createUserFromResultSet(rs)
+      }
+    }
+
+    return Option(user)
+  }
+
   def findAllUsers(): List[User] = {
     var list: List[User] = List()
 

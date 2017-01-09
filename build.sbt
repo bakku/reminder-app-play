@@ -8,12 +8,15 @@ scalaVersion := "2.11.7"
 
 javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
 
+resolvers ++= Seq("RoundEights" at "http://maven.spikemark.net/roundeights")
+
 libraryDependencies ++= Seq(
   jdbc,
   evolutions,
   cache,
   ws,
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
-  "org.postgresql" % "postgresql" % "9.4.1212"
+  "org.postgresql" % "postgresql" % "9.4.1212",
+  "com.roundeights" %% "hasher" % "1.2.0"
 )
 
