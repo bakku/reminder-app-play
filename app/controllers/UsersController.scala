@@ -7,7 +7,7 @@ import play.api.db._
 import play.api.libs.json._
 
 import persistency._
-import serializer.UserSerializer
+import serializer.{UserSerializer, SerializeException}
 import models.User
 
 @Singleton
