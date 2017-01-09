@@ -31,7 +31,7 @@ class UsersController @Inject()(repo: UserRepository) extends Controller {
       Ok
     }
     catch {
-      case jre: JsResultException => BadRequest
+      case se: SerializeException => BadRequest("User could not be created from JSON")
     }
   }
 
