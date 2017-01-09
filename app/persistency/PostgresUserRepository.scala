@@ -1,12 +1,13 @@
 package persistency
 
+import javax.inject._
 import play.api.db._
 
 import models.User
+import helper.UserHelper
 
-
-class PostgresUserRepository(db: Database) extends UserRepository {
-  def findUserById(id: Long): User = {
+class PostgresUserRepository @Inject()(db: Database) extends UserRepository {
+  def findUserById(id: Long): Option[User] = {
     var user: User = null
     
     db.withConnection { conn =>
@@ -16,15 +17,11 @@ class PostgresUserRepository(db: Database) extends UserRepository {
       val rs = stmt.executeQuery
 
       if (rs.next()) {
-        val email = rs.getString("email")
-        val password = rs.getString("password")
-        val isAdmin = rs.getBoolean("is_admin")
-
-        user = User(email, password, isAdmin)
+        user = UserHelper.createUserFromResultSet(rs)
       }
     }
 
-    return user
+    return Option(user)
   }
 
   def findAllUsers(): List[User] = {
@@ -35,16 +32,29 @@ class PostgresUserRepository(db: Database) extends UserRepository {
       val rs = stmt.executeQuery
 
       while(rs.next()) {
-        val email = rs.getString("email")
-        val password = rs.getString("password")
-        val isAdmin = rs.getBoolean("is_admin")
-
-        val user = User(email, password, isAdmin)
-
+        val user = UserHelper.createUserFromResultSet(rs)
         list = user :: list
       }
     }
 
     return list
+  }
+
+  def createUser(user: User) {
+    db.withConnection { conn =>
+      val stmt = conn.prepareStatement("INSERT INTO users(email, password, is_admin) VALUES(?, digest(?, 'sha512'), false)")
+      stmt.setString(1, user.email)
+      stmt.setString(2, user.password)
+
+      stmt.executeUpdate
+    }
+  }
+
+  def deleteUserById(id: Long) {
+    db.withConnection { conn =>
+      val stmt = conn.prepareStatement("DELETE FROM users WHERE id = ?")
+      stmt.setLong(1, id)
+      stmt.executeUpdate
+    }
   }
 }

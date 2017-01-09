@@ -4,7 +4,9 @@
 
 # Users controller
 GET     /users                      controllers.UsersController.index
+POST    /users                      controllers.UsersController.create
 GET     /users/:id                  controllers.UsersController.show(id: Long)
+DELETE  /users/:id                  controllers.UsersController.delete(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -5,20 +5,29 @@ import play.api.libs.json._
 import models.User
 
 object UserSerializer {
-  def convert(user: User): JsValue = {
-    implicit val userWrites = Json.writes[User]
-    return Json.toJson(user)
-  }  
+  def serialize(user: User): JsValue = {
+    return JsObject(Map("email" -> JsString(user.email)))
+  }
 
-  def convertList(users: List[User]): JsValue = {
+  def serializeList(users: List[User]): JsValue = {
     var usersAsJson = JsArray()
     
     users.foreach { u =>
-      usersAsJson = usersAsJson.append(JsObject(Map("email" -> JsString(u.email),
-                                                    "password" -> JsString(u.password),
-                                                    "isAdmin" -> JsBoolean(u.isAdmin))))
+      usersAsJson = usersAsJson.append(serialize(u))
     }
 
     return usersAsJson
+  }
+
+  def deserialize(userJson: JsValue): User = {
+    try {
+      val email = (userJson \ "email").as[String]
+      val password = (userJson \ "password").as[String]
+
+      return User(email, password, false)
+    }
+    catch {
+      case e: JsResultException => throw new SerializeException()
+    }
   }
 }

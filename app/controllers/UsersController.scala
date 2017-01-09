@@ -4,27 +4,39 @@ import javax.inject._
 import play.api._
 import play.api.mvc._
 import play.api.db._
+import play.api.libs.json._
 
-import persistency.PostgresUserRepository
+import persistency._
 import serializer.UserSerializer
 import models.User
 
 @Singleton
-class UsersController @Inject()(db: Database) extends Controller {
+class UsersController @Inject()(db: Database, repo: UserRepository) extends Controller {
 
   def index = Action {
-    val listOfUsers = new PostgresUserRepository(db).findAllUsers
-    Ok(UserSerializer.convertList(listOfUsers))
+    val listOfUsers = repo.findAllUsers
+    Ok(UserSerializer.serializeList(listOfUsers))
   }
 
   def show(id: Long) = Action {
-    val user = new PostgresUserRepository(db).findUserById(id)
- 
-    if (user == null) {
-      NotFound
+    repo.findUserById(id).map { user => 
+      Ok(UserSerializer.serialize(user))
+    }.getOrElse(NotFound)
+  }
+
+  def create = Action(parse.json) { request =>
+    try {
+      val user = UserSerializer.deserialize(request.body)
+      repo.createUser(user)
+      Ok
     }
-    else {
-      Ok(UserSerializer.convert(user))
+    catch {
+      case jre: JsResultException => BadRequest
     }
+  }
+
+  def delete(id: Long) = Action {
+    repo.deleteUserById(id)
+    Ok
   }
 }
