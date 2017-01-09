@@ -6,11 +6,9 @@ class UsersControllerSpec extends PlaySpec with OneAppPerSuite {
 
   "#index" should {
 
-    "get all users when no one created" in {
+    "return forbidden if no auth header given" in {
       val index = route(app, FakeRequest(GET, "/users")).get
-      status(index) mustBe OK
-      contentType(index) mustBe Some("application/json")
-      contentAsString(index) mustBe ("[]")
+      status(index) mustBe FORBIDDEN
     }
 
   }

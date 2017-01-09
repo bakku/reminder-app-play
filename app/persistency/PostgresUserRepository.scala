@@ -2,10 +2,12 @@ package persistency
 
 import javax.inject._
 import play.api.db._
+import play.api._
 
 import models.User
 import helper.UserHelper
 
+@Singleton
 class PostgresUserRepository @Inject()(db: Database) extends UserRepository {
   def findUserById(id: Long): Option[User] = {
     var user: User = null
