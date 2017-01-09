@@ -11,7 +11,7 @@ import serializer.UserSerializer
 import models.User
 
 @Singleton
-class UsersController @Inject()(db: Database, repo: UserRepository) extends Controller {
+class UsersController @Inject()(repo: UserRepository) extends Controller {
 
   def index = Action {
     val listOfUsers = repo.findAllUsers
@@ -39,4 +39,5 @@ class UsersController @Inject()(db: Database, repo: UserRepository) extends Cont
     repo.deleteUserById(id)
     Ok
   }
+
 }
