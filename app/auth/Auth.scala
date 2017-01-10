@@ -11,7 +11,7 @@ import models.User
 
 object Auth {
   
-  def authorizeAdmin(userRepo: UserRepository, request: Request[AnyContent]): Boolean = {
+  def authorizeAdmin(userRepo: UserRepository, request: Request[Any]): Boolean = {
     val auth = request.headers.get("Authorization").getOrElse(None)   
 
     auth match {
@@ -30,7 +30,7 @@ object Auth {
     }
   }
 
-  def authorizeUserOrAdmin(allowedUser: User, userRepo: UserRepository, request: Request[AnyContent]): Boolean = {
+  def authorizeUserOrAdmin(allowedUser: User, userRepo: UserRepository, request: Request[Any]): Boolean = {
     authorizeAdmin(userRepo, request) match {
       case true => true
       case false => {

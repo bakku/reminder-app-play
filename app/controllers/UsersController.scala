@@ -31,7 +31,6 @@ class UsersController @Inject()(repo: UserRepository) extends Controller {
       Auth.authorizeUserOrAdmin(user, repo, request) match {
         case true => Ok(UserSerializer.serialize(user))
         case false => {
-          Logger.warn("Hi")
           Forbidden("Not Authorized")
         }
       }
@@ -41,8 +40,8 @@ class UsersController @Inject()(repo: UserRepository) extends Controller {
   def create = Action(parse.json) { request =>
     try {
       val user = UserSerializer.deserialize(request.body)
-      repo.createUser(user)
-      Ok("User created")
+      val id = repo.createUser(user)
+      Ok("User created").withHeaders(LOCATION -> ("/users/" + id.toString))
     }
     catch {
       case se: SerializeException => BadRequest("User could not be created from JSON")

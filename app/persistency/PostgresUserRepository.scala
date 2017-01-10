@@ -59,14 +59,19 @@ class PostgresUserRepository @Inject()(db: Database) extends UserRepository {
     return list
   }
 
-  def createUser(user: User) {
+  def createUser(user: User): Long = {
+    var num: Long = 0
+
     db.withConnection { conn =>
-      val stmt = conn.prepareStatement("INSERT INTO users(email, password, is_admin) VALUES(?, digest(?, 'sha512'), false)")
+      val stmt = conn.prepareStatement("INSERT INTO users(email, password, is_admin) VALUES(?, digest(?, 'sha512'), false) RETURNING id")
       stmt.setString(1, user.email)
       stmt.setString(2, user.password)
 
-      stmt.executeUpdate
+      val rs = stmt.executeQuery
+      rs.next()
+      num = rs.getLong(1)
     }
+    return num
   }
 
   def deleteUserById(id: Long) {

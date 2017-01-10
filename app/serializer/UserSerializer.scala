@@ -6,7 +6,8 @@ import models.User
 
 object UserSerializer {
   def serialize(user: User): JsValue = {
-    return JsObject(Map("email" -> JsString(user.email)))
+    return JsObject(Map("id" -> JsNumber(user.id.get),
+                        "email" -> JsString(user.email)))
   }
 
   def serializeList(users: List[User]): JsValue = {
