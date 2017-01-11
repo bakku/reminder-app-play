@@ -4,7 +4,12 @@ import java.time.{Clock, Instant}
 import javax.inject._
 import play.api.Logger
 import play.api.inject.ApplicationLifecycle
+import play.api.libs.concurrent._
 import scala.concurrent.Future
+import scala.concurrent.duration._
+import play.api.Play.current
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor._
 
 /**
  * This class demonstrates how to run code when the
@@ -21,11 +26,15 @@ import scala.concurrent.Future
  * application's [[ApplicationLifecycle]] to register a stop hook.
  */
 @Singleton
-class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle) {
+class ApplicationTimer @Inject() (clock: Clock, appLifecycle: ApplicationLifecycle,  actorSystem: ActorSystem) {
 
   // This code is called when the application starts.
   private val start: Instant = clock.instant
   Logger.info(s"ApplicationTimer demo: Starting application at $start.")
+
+  actorSystem.scheduler.schedule(0 seconds, 1 seconds) {
+    Logger.warn("Hallo sweetie")
+  }
 
   // When the application starts, register a stop hook with the
   // ApplicationLifecycle object. The code inside the stop hook will
