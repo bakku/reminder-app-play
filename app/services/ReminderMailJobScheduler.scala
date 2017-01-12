@@ -20,7 +20,7 @@ class ReminderMailJobScheduler @Inject() (actorSystem: ActorSystem, userRepo: Us
 
   val mailActorRouter = actorSystem.actorOf(RoundRobinPool(5).props(ReminderMailActor.props))
 
-  actorSystem.scheduler.schedule(0 seconds, 1 seconds) {
+  actorSystem.scheduler.schedule(0 seconds, 60 seconds) {
     val currentTime = LocalDateTime.now
 
     reminderRepo.allBefore(currentTime).foreach { 
