@@ -67,4 +67,23 @@ class PostgresReminderRepository @Inject()(db: Database) extends ReminderReposit
       stmt.executeUpdate
     }
   }
+
+  def allBefore(date: LocalDateTime): List[Reminder] = {
+    var list: List[Reminder] = List()
+    val dateInMilli = date.atZone(ZoneId.of("Europe/London")).toInstant.toEpochMilli
+
+    db.withConnection { conn =>
+      val stmt = conn.prepareStatement("SELECT * FROM reminders WHERE reminder_date < ?")
+      stmt.setLong(1, dateInMilli)
+
+      val rs = stmt.executeQuery
+
+      while (rs.next()) {
+        val reminder = ReminderHelper.createReminderFromResultSet(rs) 
+        list = reminder :: list
+      }
+    }
+
+    return list
+  }
 }
