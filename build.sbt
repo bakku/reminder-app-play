@@ -18,6 +18,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
   "org.postgresql" % "postgresql" % "9.4.1212",
   "com.roundeights" %% "hasher" % "1.2.0",
-  "com.typesafe.play" %% "play-mailer" % "5.0.0"
+  "com.typesafe.play" %% "play-mailer" % "5.0.0",
+  "com.rabbitmq" % "amqp-client" % "4.0.2"
 )
 
