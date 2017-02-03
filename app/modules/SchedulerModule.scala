@@ -11,3 +11,4 @@ class SchedulerModule extends AbstractModule {
   }
 
 }
+
