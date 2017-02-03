@@ -51,7 +51,7 @@ class PostgresReminderRepository @Inject()(db: Database) extends ReminderReposit
       val stmt = conn.prepareStatement("INSERT INTO reminders(user_id, message, reminder_date) VALUES(?, ?, ?) RETURNING id")
       stmt.setLong(1, userId)
       stmt.setString(2, reminder.message)
-      stmt.setLong(3, reminder.reminderDate.atZone(ZoneId.of("Europe/London")).toInstant.toEpochMilli)
+      stmt.setLong(3, reminder.reminderDate.toEpochMilli)
 
       val rs = stmt.executeQuery
       rs.next()
