@@ -6,10 +6,7 @@ import scala.concurrent.duration._
 import scala.concurrent._
 import play.api.Configuration
 import akka.actor.ActorSystem
-import akka.pattern._
-import akka.routing._
-import play.api.libs.mailer._
-import java.time.LocalDateTime
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.rabbitmq.client._
 
@@ -19,9 +16,7 @@ import mailers.ReminderMailer
 import persistency._
 
 @Singleton
-class ReminderMailJobScheduler @Inject() (lifecycle: ApplicationLifecycle, actorSystem: ActorSystem) {//, userRepo: UserRepository, reminderRepo: ReminderRepository, configuration: Configuration, mailerClient: MailerClient) {
-
-  //val mailActorRouter = actorSystem.actorOf(RoundRobinPool(5).props(ReminderMailActor.props))
+class ReminderMailJobScheduler @Inject() (lifecycle: ApplicationLifecycle, actorSystem: ActorSystem, reminderRepo: ReminderRepository) {//, userRepo: UserRepository, reminderRepo: ReminderRepository, configuration: Configuration, mailerClient: MailerClient) {
 
   val queueName = "hello"
   val factory = new ConnectionFactory()
@@ -31,12 +26,11 @@ class ReminderMailJobScheduler @Inject() (lifecycle: ApplicationLifecycle, actor
   channel.queueDeclare(queueName, false, false, false, null)
 
   actorSystem.scheduler.schedule(0 seconds, 10 seconds) {
-    //val currentTime = LocalDateTime.now
+    val currentTime = Instant.now
 
-    //reminderRepo.allBefore(currentTime).foreach { 
-    //  mailActorRouter ! SendReminder(_, userRepo, reminderRepo, configuration, mailerClient)
-    //}
-    val message = "Hello world"
-    channel.basicPublish("", queueName, null, message.getBytes)
+    reminderRepo.allBefore(currentTime).foreach { reminder =>
+      val message = reminder.userId.toString + "," + reminder.id.get.toString
+      channel.basicPublish("", queueName, null, message.getBytes)
+    }
   }
 }
