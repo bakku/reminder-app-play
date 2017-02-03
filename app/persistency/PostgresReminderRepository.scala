@@ -4,6 +4,7 @@ import javax.inject._
 import java.time._
 import play.api._
 import play.api.db._
+import java.sql.ResultSet
 
 import models.Reminder
 import helper.ReminderHelper
@@ -12,21 +13,13 @@ import helper.ReminderHelper
 class PostgresReminderRepository @Inject()(db: Database) extends ReminderRepository {
 
   def allByUserId(id: Long): List[Reminder] = {
-    var list: List[Reminder] = List()
-
     db.withConnection { conn =>
       val stmt = conn.prepareStatement("SELECT reminders.id, reminders.reminder_date, reminders.message, reminders.user_id FROM reminders JOIN users ON user_id = users.id WHERE users.id = ?")
       stmt.setLong(1, id)
-
       val rs = stmt.executeQuery
 
-      while(rs.next()) {
-        val reminder = ReminderHelper.createReminderFromResultSet(rs)
-        list = reminder :: list
-      }
+      buildReminderList(rs, List())
     }
-
-    return list
   }
 
   def byUserIdAndReminderId(userId: Long, reminderId: Long): Option[Reminder] = {
@@ -68,22 +61,25 @@ class PostgresReminderRepository @Inject()(db: Database) extends ReminderReposit
     }
   }
 
-  def allBefore(date: LocalDateTime): List[Reminder] = {
-    var list: List[Reminder] = List()
-    val dateInMilli = date.atZone(ZoneId.of("Europe/London")).toInstant.toEpochMilli
+  def allBefore(date: Instant): List[Reminder] = {
+    val dateInMilli = date.toEpochMilli
 
     db.withConnection { conn =>
       val stmt = conn.prepareStatement("SELECT * FROM reminders WHERE reminder_date < ?")
       stmt.setLong(1, dateInMilli)
 
       val rs = stmt.executeQuery
-
-      while (rs.next()) {
-        val reminder = ReminderHelper.createReminderFromResultSet(rs) 
-        list = reminder :: list
-      }
+      buildReminderList(rs, List())
     }
+  }
 
-    return list
+
+  private def buildReminderList(rs: ResultSet, list: List[Reminder]): List[Reminder] = {
+    if (rs.next()) {
+      return buildReminderList(rs, list :+ ReminderHelper.createReminderFromResultSet(rs))
+    }
+    else {
+      return list
+    }
   }
 }
