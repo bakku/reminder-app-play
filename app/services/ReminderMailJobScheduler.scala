@@ -39,11 +39,4 @@ class ReminderMailJobScheduler @Inject() (lifecycle: ApplicationLifecycle, actor
     val message = "Hello world"
     channel.basicPublish("", queueName, null, message.getBytes)
   }
-
-  lifecycle.addStopHook { () =>
-    Future.successful {
-      channel.close
-      connection.close
-    }
-  }
 }
