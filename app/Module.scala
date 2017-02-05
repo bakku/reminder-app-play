@@ -3,7 +3,6 @@ import java.time.Clock
 import play.api.libs.concurrent.AkkaGuiceSupport
 
 import persistency._
-import actors._
 
 class Module extends AbstractModule {
 
